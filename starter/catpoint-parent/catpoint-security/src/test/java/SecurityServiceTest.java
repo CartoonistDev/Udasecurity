@@ -179,10 +179,12 @@ public class SecurityServiceTest {
     // set the alarm status to alarm.
     @Test
     void ifTheSystemIsArmedHomeWhileTheCameraShowsACat_setTheAlarmStatusToAlarm(){
-        BufferedImage catImage = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
+        BufferedImage catImage = new BufferedImage(310, 256, BufferedImage.TYPE_INT_RGB);
         when(imageService.imageContainsCat(any(),anyFloat())).thenReturn(true);
-        when(securityRepository.getArmingStatus()).thenReturn(ArmingStatus.ARMED_HOME);
+        when(securityRepository.getArmingStatus()).thenReturn(ArmingStatus.DISARMED);
+
         securityService.processImage(catImage);
+        securityService.setArmingStatus(ArmingStatus.ARMED_HOME);
 
 
         verify(securityRepository, times(1)).setAlarmStatus(AlarmStatus.ALARM);
