@@ -1,6 +1,6 @@
 package security.service;
 
-import image.service.FakeImageService;
+import image.service.ImageService;
 import security.application.StatusListener;
 import security.data.AlarmStatus;
 import security.data.ArmingStatus;
@@ -20,11 +20,11 @@ import java.util.Set;
  */
 public class SecurityService {
 
-    private FakeImageService imageService;
+    private ImageService imageService;
     private SecurityRepository securityRepository;
     private Set<StatusListener> statusListeners = new HashSet<>();
 
-    public SecurityService(SecurityRepository securityRepository, FakeImageService imageService) {
+    public SecurityService(SecurityRepository securityRepository, ImageService imageService) {
         this.securityRepository = securityRepository;
         this.imageService = imageService;
     }
