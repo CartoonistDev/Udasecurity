@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/starter/catpoint-parent/catpoint-image/Image.iml" filepath="$PROJECT_DIR$/starter/catpoint-parent/catpoint-image/Image.iml" />
+      <module fileurl="file://$PROJECT_DIR$/starter/catpoint-parent/catpoint-security/Security.iml" filepath="$PROJECT_DIR$/starter/catpoint-parent/catpoint-security/Security.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Udasecurity.iml" filepath="$PROJECT_DIR$/.idea/Udasecurity.iml" />
+      <module fileurl="file://$PROJECT_DIR$/starter/catpoint-parent/catpoint-parent.iml" filepath="$PROJECT_DIR$/starter/catpoint-parent/catpoint-parent.iml" />
+    </modules>
+  </component>
+</project>
