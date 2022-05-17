@@ -14,16 +14,12 @@ import security.data.*;
 import security.service.SecurityService;
 
 import java.awt.image.BufferedImage;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class SecurityServiceTest {
     SecurityService securityService;
-
-    Set<StatusListener> statusListeners;
 
     private Sensor sensor;
     private final String random = UUID.randomUUID().toString();
@@ -34,16 +30,8 @@ public class SecurityServiceTest {
     @Mock
     ImageService imageService;
 
-
-
-    private Set<Sensor> getAllSensors(int count, boolean status) {
-        Set<Sensor> sensors = new HashSet<>();
-        for (int i = 0; i < count; i++) {
-            sensors.add(new Sensor(random, SensorType.DOOR));
-        }
-        sensors.forEach(sensor -> sensor.setActive(status));
-        return sensors;
-    }
+    @Mock
+    StatusListener statusListener;
 
     @BeforeEach
     void init(){
@@ -93,9 +81,11 @@ public class SecurityServiceTest {
         //When two sensors are on and one goes off, but alarm is still on
         // the inactive state of the sensor shouldn't change the state of the active alarm
         sensor.setActive(true);
+        securityRepository.setAlarmStatus(AlarmStatus.ALARM);
         when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.ALARM);
         securityService.changeSensorActivationStatus(sensor,false);
         verify(securityRepository, times(1)).setAlarmStatus(AlarmStatus.ALARM);}
+
 
     //5. If a sensor is activated while already active and
     // the system is in pending state, change it to alarm state.
@@ -113,13 +103,7 @@ public class SecurityServiceTest {
     //6. If a sensor is deactivated while already inactive, make no changes to the alarm state.
     @ParameterizedTest
     @EnumSource(value = AlarmStatus.class, names = {"NO_ALARM", "PENDING_ALARM", "ALARM"})
-    void ifASensorIsDeactivatedWhileAlreadyInactive_makeNoChangesToTheAlarmState(AlarmStatus status){
-//        if (status){
-//            when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.NO_ALARM);
-//            when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.ALARM);
-//            when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.PENDING_ALARM);
-//        }
-
+    void ifASensorIsDeactivatedWhileAlreadyInactive_makeNoChangesToTheAlarmState(){
         securityService.changeSensorActivationStatus(sensor, false);
         verify(securityRepository, never()).setAlarmStatus(any(AlarmStatus.class));
     }
@@ -144,8 +128,6 @@ public class SecurityServiceTest {
     // change the status to no alarm as long as the sensors are not active.
     @Test
     void ifTheImageServiceIdentifiesImageThatDoesNotContainCat_changeTheStatusToNoAlarmAsLongAsTheSensorsAreNotActive(){
-        //when(securityRepository.getArmingStatus()).thenReturn(ArmingStatus.ARMED_HOME);
-        //when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.NO_ALARM);
         when(imageService.imageContainsCat(any(), ArgumentMatchers.anyFloat())).thenReturn(false);
         securityService.processImage(mock(BufferedImage.class));
 
@@ -184,5 +166,23 @@ public class SecurityServiceTest {
 
     }
 
+    //Sensor Listener test
+    @Test
+    void addAndRemoveSensor() {
+        securityService.addSensor(sensor);
+        securityService.removeSensor(sensor);
+    }
+
+    @Test
+    void getAlarmStatus(){
+        securityService.getAlarmStatus();
+        securityService.setAlarmStatus(AlarmStatus.ALARM);
+    }
+
+    @Test
+    void add_And_Remove_StatusListener() {
+        securityService.addStatusListener(statusListener);
+        securityService.removeStatusListener(statusListener);
+    }
 
 }
