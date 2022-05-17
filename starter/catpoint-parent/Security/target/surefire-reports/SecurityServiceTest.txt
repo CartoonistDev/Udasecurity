@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: SecurityServiceTest
+-------------------------------------------------------------------------------
+Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.173 s - in SecurityServiceTest

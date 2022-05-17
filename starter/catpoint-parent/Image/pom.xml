@@ -10,6 +10,7 @@
   <groupId>com.udacity.catpoint.image</groupId>
   <artifactId>catpoint-image</artifactId>
   <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
 
   <name>catpoint-image</name>
   <!-- FIXME change it to the project's website -->
