@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -18,13 +17,13 @@ import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class SecurityServiceTest {
     SecurityService securityService;
+
+    Set<StatusListener> statusListeners;
 
     private Sensor sensor;
     private final String random = UUID.randomUUID().toString();
@@ -35,8 +34,6 @@ public class SecurityServiceTest {
     @Mock
     ImageService imageService;
 
-    @Mock
-    Set<StatusListener> statusListeners;
 
 
     private Set<Sensor> getAllSensors(int count, boolean status) {
@@ -91,18 +88,14 @@ public class SecurityServiceTest {
     }
 
     //4. If alarm is active, change in sensor state should not affect the alarm state.
-    @ParameterizedTest
-    @ValueSource(booleans = {true, false})
-    void ifAlarmIsActiveChangeInSensorStateShould_notAffectTheAlarmState( boolean status){
-        //Whether status is true or false,
-        // its state shouldn't change the state of the active alarm
-        if(status){
-            when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.ALARM);
-        }
-        securityService.changeSensorActivationStatus(sensor, status);
-
-        verify(securityRepository, never()).setAlarmStatus(any(AlarmStatus.class));
-    }
+    @Test
+    void ifAlarmIsActiveChangeInSensorStateShould_notAffectTheAlarmState(){
+        //When two sensors are on and one goes off, but alarm is still on
+        // the inactive state of the sensor shouldn't change the state of the active alarm
+        sensor.setActive(true);
+        when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.ALARM);
+        securityService.changeSensorActivationStatus(sensor,false);
+        verify(securityRepository, times(1)).setAlarmStatus(AlarmStatus.ALARM);}
 
     //5. If a sensor is activated while already active and
     // the system is in pending state, change it to alarm state.
@@ -172,7 +165,9 @@ public class SecurityServiceTest {
     @EnumSource(value = ArmingStatus.class, names = {"ARMED_HOME", "ARMED_AWAY"})
     void ifTheSystemIsArmed_resetAllAlarmStatusToInactive(ArmingStatus status){
         securityService.setArmingStatus(status);
-        assertTrue(securityService.getSensors().stream().allMatch(sensor -> Boolean.FALSE.equals(sensor.getActive())));
+        securityService.getSensors().forEach(sensor -> {
+            assert Boolean.FALSE.equals(sensor.getActive());
+        });
     }
 
     //11. If the system is armed-home while the camera shows a cat,
@@ -180,12 +175,10 @@ public class SecurityServiceTest {
     @Test
     void ifTheSystemIsArmedHomeWhileTheCameraShowsACat_setTheAlarmStatusToAlarm(){
         BufferedImage catImage = new BufferedImage(310, 256, BufferedImage.TYPE_INT_RGB);
+        when(securityRepository.getArmingStatus()).thenReturn(ArmingStatus.ARMED_HOME);
         when(imageService.imageContainsCat(any(),anyFloat())).thenReturn(true);
-        when(securityRepository.getArmingStatus()).thenReturn(ArmingStatus.DISARMED);
-
+        securityService.setArmingStatus(ArmingStatus.DISARMED);
         securityService.processImage(catImage);
-        securityService.setArmingStatus(ArmingStatus.ARMED_HOME);
-
 
         verify(securityRepository, times(1)).setAlarmStatus(AlarmStatus.ALARM);
 

@@ -7,7 +7,4 @@ module security{
     requires gson;
     requires transitive java.prefs;
     opens security.service to gson;
-    exports security.service;
-    exports security.data;
-    exports security.application;
 }
