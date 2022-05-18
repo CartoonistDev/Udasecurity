@@ -38,17 +38,6 @@
   </modules>
 
   <dependencies>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.8.2</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-inline</artifactId>
-      <version>4.5.1</version>
-    </dependency>
 
     <dependency>
       <groupId>org.junit.platform</groupId>
@@ -56,15 +45,9 @@
       <version>1.3.2</version>
     </dependency>
     <dependency>
-      <groupId>com.miglayout</groupId>
-      <artifactId>miglayout</artifactId>
-      <version>3.7.4</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>com.github.spotbugs</groupId>
       <artifactId>spotbugs</artifactId>
-      <version>4.7.0</version>
+      <version>4.3.0</version>
     </dependency>
   </dependencies>
 
@@ -109,13 +92,6 @@
         </plugin>
       </plugins>
     </pluginManagement>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M5</version>
-      </plugin>
-    </plugins>
   </build>
 
   <reporting>
@@ -123,7 +99,7 @@
       <plugin>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>4.7.0</version>
+        <version>4.3.0</version>
       </plugin>
     </plugins>
   </reporting>
