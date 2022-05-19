@@ -103,43 +103,37 @@ public class SecurityService {
             case ALARM -> setAlarmStatus(AlarmStatus.PENDING_ALARM);
         }
     }
-    /**
-     * Change the activation status for the specified sensor when no activate status is passed and update alarm status if necessary.
-     * @param sensor
-     */
-    public void changeSensorActivationStatus(Sensor sensor) {
-        AlarmStatus actualAlarmStatus = this.getAlarmStatus();
-        ArmingStatus actualArmingStatus = this.getArmingStatus();
-        if (actualAlarmStatus == AlarmStatus.PENDING_ALARM && !sensor.getActive()) {
-            handleSensorDeactivated();
-        } else if (actualAlarmStatus == AlarmStatus.ALARM && actualArmingStatus == ArmingStatus.DISARMED) {
-            handleSensorDeactivated();
-        }
-        securityRepository.updateSensor(sensor);
-    }
+
     /**
      * Change the activation status for the specified sensor and update alarm status if necessary.
      * @param sensor
      * @param active
      */
     public void changeSensorActivationStatus(Sensor sensor, Boolean active) {
-        AlarmStatus actualAlarmStatus = securityRepository.getAlarmStatus();
-        if(actualAlarmStatus != AlarmStatus.ALARM) {
-            if(active) {
-                handleSensorActivated();
-            } else if (sensor.getActive()) {
-                handleSensorDeactivated();
-            }
+        AlarmStatus alarmStatus = this.getAlarmStatus();
+        ArmingStatus armingStatus = this.getArmingStatus();
+        if(!sensor.getActive() && active ) {
+            handleSensorActivated();
+        } else if(!sensor.getActive() && alarmStatus == AlarmStatus.PENDING_ALARM ) {
+            handleSensorActivated();
+        } else if(armingStatus == ArmingStatus.DISARMED && alarmStatus == AlarmStatus.ALARM ) {
+            handleSensorActivated();
+        } else if (sensor.getActive() && !active) {
+            handleSensorDeactivated();
+        } else if (sensor.getActive() || active){
+            handleSensorDeactivated();
         }
+
+
         sensor.setActive(active);
         securityRepository.updateSensor(sensor);
-        printAllSensors();
+        //printAllSensors();
     }
-    public void printAllSensors() {
-        ConcurrentSkipListSet<Sensor> sensors = new ConcurrentSkipListSet<>(getSensors());
-        sensors.forEach(sensor -> System.out.println(sensor.getName() + " " + sensor.getActive()));
-        System.out.println("________________________");
-    }
+//    public void printAllSensors() {
+//        ConcurrentSkipListSet<Sensor> sensors = new ConcurrentSkipListSet<>(getSensors());
+//        sensors.forEach(sensor -> System.out.println(sensor.getName() + " " + sensor.getActive()));
+//        System.out.println("________________________");
+//    }
     /**
      * Send an image to the SecurityService for processing. The securityService will use it's provided
      * ImageService to analyze the image for cats and update the alarm status accordingly.

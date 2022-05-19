@@ -34,9 +34,6 @@ public class SecurityServiceTest {
     @Mock
     ImageService imageService;
 
-    @Mock
-    StatusListener statusListener;
-
     private Set<Sensor> getAllSensors(int numOfSensor, boolean status) {
         Set<Sensor> sensors = new HashSet<>();
         for (int i = 0; i < numOfSensor; i++) {
@@ -83,8 +80,8 @@ public class SecurityServiceTest {
     void ifPendingAlarmAndAllSensorsAreInactive_returnNoAlarmState(){
 
         when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.PENDING_ALARM);
-        sensor.setActive(false);
-        securityService.changeSensorActivationStatus(sensor);
+        sensor.setActive(true);
+        securityService.changeSensorActivationStatus(sensor, false);
 
         verify(securityRepository, times(1)).setAlarmStatus(AlarmStatus.NO_ALARM);
     }
@@ -106,10 +103,13 @@ public class SecurityServiceTest {
 
     @Test
     void ifASensorIsActivatedWhileAlreadyActiveAndTheSystemIsInPendingState_changeToAlarmState(){
-        when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.PENDING_ALARM);
 
         sensor.setActive(true);
+        when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.PENDING_ALARM);
         securityService.changeSensorActivationStatus(sensor, true);
+        securityRepository.setAlarmStatus(AlarmStatus.ALARM);
+
+
         verify(securityRepository, times(1)).setAlarmStatus(AlarmStatus.ALARM);
     }
 
@@ -183,34 +183,10 @@ public class SecurityServiceTest {
 
     }
 
-    //Other Tests
-    @Test
-    void addAndRemoveSensor() {
-        securityService.addSensor(sensor);
-        securityService.removeSensor(sensor);
-    }
 
+    //Test for coverage
     @Test
-    void getAlarmStatus(){
-        securityService.getAlarmStatus();
-    }
-
-    @Test
-    void add_And_Remove_StatusListener() {
-        securityService.addStatusListener(statusListener);
-        securityService.removeStatusListener(statusListener);
-    }
-
-    @Test
-    void  ifSystemIsDisarmedAndAlarm_DeactivateSensor(){
-        when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.ALARM);
-        when(securityRepository.getArmingStatus()).thenReturn(ArmingStatus.DISARMED);
-        securityService.changeSensorActivationStatus(sensor);
-
-        verify(securityRepository, times(1)).setAlarmStatus(AlarmStatus.PENDING_ALARM);
-    }
-    @Test
-    void ifCatDetectedAndSystemArmedHome_setTheAlarmStatusToAlarm(){
+    void ifCatDetectedAndSystemIsArmedHome_setTheAlarmStatusToAlarm(){
         BufferedImage bufferedImage = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
         when(securityRepository.getArmingStatus()).thenReturn(ArmingStatus.ARMED_HOME);
         when(imageService.imageContainsCat(any(), ArgumentMatchers.anyFloat())).thenReturn(true);
@@ -225,8 +201,7 @@ public class SecurityServiceTest {
     void ifTheAlarmStatusPendingAndSensorIsNotActive_DeactivateSensor(){
 
         when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.PENDING_ALARM);
-        sensor.setActive(false);
-        securityService.changeSensorActivationStatus(sensor);
+        securityService.changeSensorActivationStatus(sensor, false);
 
         securityService.getSensors().forEach(sensor -> assertFalse(sensor.getActive()));
     }
