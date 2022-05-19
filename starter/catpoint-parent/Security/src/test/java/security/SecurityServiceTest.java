@@ -81,10 +81,10 @@ public class SecurityServiceTest {
     //3. If pending alarm and all sensors are inactive, return to no alarm state.
     @Test
     void ifPendingAlarmAndAllSensorsAreInactive_returnNoAlarmState(){
-        when(securityRepository.getArmingStatus()).thenReturn(ArmingStatus.ARMED_HOME);
+
         when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.PENDING_ALARM);
-        securityService.changeSensorActivationStatus(sensor, true);
-        securityService.changeSensorActivationStatus(sensor, false);
+        sensor.setActive(false);
+        securityService.changeSensorActivationStatus(sensor);
 
         verify(securityRepository, times(1)).setAlarmStatus(AlarmStatus.NO_ALARM);
     }
@@ -173,15 +173,17 @@ public class SecurityServiceTest {
     @Test
     void ifTheSystemIsArmedHomeWhileTheCameraShowsACat_setTheAlarmStatusToAlarm(){
         BufferedImage catImage = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
-        when(securityRepository.getArmingStatus()).thenReturn(ArmingStatus.ARMED_HOME);
         when(imageService.imageContainsCat(any(),anyFloat())).thenReturn(true);
+        when(securityRepository.getArmingStatus()).thenReturn(ArmingStatus.DISARMED);
+
         securityService.processImage(catImage);
+        securityService.setArmingStatus(ArmingStatus.ARMED_HOME);
 
         verify(securityRepository, times(1)).setAlarmStatus(AlarmStatus.ALARM);
 
     }
 
-    //Sensor Listener test
+    //Other Tests
     @Test
     void addAndRemoveSensor() {
         securityService.addSensor(sensor);
@@ -207,7 +209,6 @@ public class SecurityServiceTest {
 
         verify(securityRepository, times(1)).setAlarmStatus(AlarmStatus.PENDING_ALARM);
     }
-
     @Test
     void ifCatDetectedAndSystemArmedHome_setTheAlarmStatusToAlarm(){
         BufferedImage bufferedImage = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
@@ -221,8 +222,10 @@ public class SecurityServiceTest {
     }
 
     @Test
-    void ifTheAlarmStatusPendingAnsSensorIsNotActive_DeactivateSensor(){
-        securityRepository.setAlarmStatus(AlarmStatus.PENDING_ALARM);
+    void ifTheAlarmStatusPendingAndSensorIsNotActive_DeactivateSensor(){
+
+        when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.PENDING_ALARM);
+        sensor.setActive(false);
         securityService.changeSensorActivationStatus(sensor);
 
         securityService.getSensors().forEach(sensor -> assertFalse(sensor.getActive()));

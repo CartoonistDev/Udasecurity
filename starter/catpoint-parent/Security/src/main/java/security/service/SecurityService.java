@@ -46,9 +46,7 @@ public class SecurityService {
         securityRepository.setArmingStatus(armingStatus);
         statusListeners.forEach(StatusListener::sensorStatusChanged);
     }
-    //    private void changeSensorsStatus(Set<Sensor>sensors, boolean active) {
-//        sensors.stream().forEach(sensor -> changeSensorActivationStatus(sensor, active));
-//    }
+
     private boolean getAllSensorsFromState(boolean state) {
         return getSensors().stream().allMatch(sensor -> sensor.getActive() == state);
     }
