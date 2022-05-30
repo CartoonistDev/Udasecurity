@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -104,10 +105,10 @@ public class SecurityServiceTest {
     @Test
     void ifASensorIsActivatedWhileAlreadyActiveAndTheSystemIsInPendingState_changeToAlarmState(){
 
-        sensor.setActive(true);
+
         when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.PENDING_ALARM);
+        sensor.setActive(true);
         securityService.changeSensorActivationStatus(sensor, true);
-        securityRepository.setAlarmStatus(AlarmStatus.ALARM);
 
 
         verify(securityRepository, times(1)).setAlarmStatus(AlarmStatus.ALARM);
@@ -183,20 +184,6 @@ public class SecurityServiceTest {
 
     }
 
-
-    //Test for coverage
-    @Test
-    void ifCatDetectedAndSystemIsArmedHome_setTheAlarmStatusToAlarm(){
-        BufferedImage bufferedImage = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
-        when(securityRepository.getArmingStatus()).thenReturn(ArmingStatus.ARMED_HOME);
-        when(imageService.imageContainsCat(any(), ArgumentMatchers.anyFloat())).thenReturn(true);
-        securityService.processImage(bufferedImage);
-
-
-        verify(securityRepository, times(1)).setAlarmStatus(AlarmStatus.ALARM);
-
-    }
-
     @Test
     void ifTheAlarmStatusPendingAndSensorIsNotActive_DeactivateSensor(){
 
@@ -205,5 +192,7 @@ public class SecurityServiceTest {
 
         securityService.getSensors().forEach(sensor -> assertFalse(sensor.getActive()));
     }
+
+
 
 }
