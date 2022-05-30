@@ -188,9 +188,19 @@ public class SecurityServiceTest {
     void ifTheAlarmStatusPendingAndSensorIsNotActive_DeactivateSensor(){
 
         when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.PENDING_ALARM);
+        securityService.changeSensorActivationStatus(sensor);
         securityService.changeSensorActivationStatus(sensor, false);
 
         securityService.getSensors().forEach(sensor -> assertFalse(sensor.getActive()));
+    }
+
+    @Test
+    void ifAlarmStateAndSystemIsDisarmed_changeStatusToPending() {
+        when(securityRepository.getAlarmStatus()).thenReturn(AlarmStatus.ALARM);
+        when(securityRepository.getArmingStatus()).thenReturn(ArmingStatus.DISARMED);
+        securityService.changeSensorActivationStatus(sensor);
+
+        verify(securityRepository).setAlarmStatus(AlarmStatus.PENDING_ALARM);
     }
 
 

@@ -110,13 +110,22 @@ public class SecurityService {
      * @param status
      */
 
-    //ifInAlarmStateAndSensorDeactivated_changeToPending
     public void changeSensorActivationStatus(Sensor sensor, Boolean status) {
         if(getAlarmStatus() != AlarmStatus.ALARM) {
             if(status) handleSensorActivated();
             else if (sensor.getActive()) handleSensorDeactivated();
         }
         sensor.setActive(status);
+        securityRepository.updateSensor(sensor);
+    }
+
+    public void changeSensorActivationStatus(Sensor sensor) {
+
+        if (getAlarmStatus() == AlarmStatus.PENDING_ALARM && !sensor.getActive())
+            handleSensorDeactivated();
+        else if (getAlarmStatus() == AlarmStatus.ALARM && getArmingStatus() == ArmingStatus.DISARMED)
+            handleSensorDeactivated();
+
         securityRepository.updateSensor(sensor);
     }
 
